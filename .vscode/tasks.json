@@ -1,0 +1,56 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/Playground.csproj", "-v", "quiet", "--nologo"],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "run: 현재 파일",
+      "detail": "열려 있는 exercises/exN.cs 를 실행",
+      "type": "shell",
+      "command": "${workspaceFolder}/run",
+      "args": ["${fileBasenameNoExtension}"],
+      "problemMatcher": "$msCompile",
+      "presentation": { "clear": true, "panel": "dedicated" },
+      "group": { "kind": "test", "isDefault": true }
+    },
+    {
+      "label": "run: 전체",
+      "type": "shell",
+      "command": "${workspaceFolder}/run",
+      "args": ["all"],
+      "problemMatcher": "$msCompile",
+      "presentation": { "clear": true, "panel": "dedicated" }
+    },
+    {
+      "label": "watch: 현재 파일",
+      "detail": "저장할 때마다 현재 파일 자동 재실행",
+      "type": "shell",
+      "command": "${workspaceFolder}/run",
+      "args": ["-w", "${fileBasenameNoExtension}"],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "new: 연습문제 추가",
+      "type": "shell",
+      "command": "${workspaceFolder}/new",
+      "args": ["${input:exerciseName}"],
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "exerciseName",
+      "type": "promptString",
+      "description": "새 연습문제 이름 (비워두면 다음 번호 자동)",
+      "default": ""
+    }
+  ]
+}

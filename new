@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# 새 연습문제 파일 생성
+#   ./new           다음 번호로 (ex1, ex2, ...)
+#   ./new ex7       이름 지정
+#   ./new linq-basics
+set -euo pipefail
+cd "$(dirname "$0")"
+
+DIR=exercises
+mkdir -p "$DIR"
+
+name="${1:-}"
+if [[ -z "$name" ]]; then
+  # exercises/ex<N>.cs 중 가장 큰 번호 + 1
+  n=$(ls "$DIR" 2>/dev/null | sed -n 's/^ex\([0-9]\{1,\}\)\.cs$/\1/p' | sort -n | tail -1)
+  name="ex$(( ${n:-0} + 1 ))"
+fi
+
+name="${name%.cs}"
+file="$DIR/$name.cs"
+
+# 파일명 -> 클래스명 (ex7 -> Ex7, linq-basics -> LinqBasics)
+cls=$(printf '%s' "$name" | awk '
+  { n = split(tolower($0), parts, /[^a-zA-Z0-9]+/); out = ""
+    for (i = 1; i <= n; i++) if (parts[i] != "")
+      out = out toupper(substr(parts[i],1,1)) substr(parts[i],2)
+    print out }')
+
+if [[ -z "$cls" ]]; then
+  echo "이름이 이상합니다: $name" >&2
+  exit 1
+fi
+if [[ "$cls" =~ ^[0-9] ]]; then
+  cls="Ex$cls"
+fi
+lower=$(printf %s "$cls" | tr "[:upper:]" "[:lower:]")
+if [[ -e "$file" ]]; then
+  echo "이미 있습니다: $file" >&2
+  exit 1
+fi
+
+cat > "$file" <<TEMPLATE
+// $file  ->  실행: ./run $lower
+class $cls
+{
+    public static void Run()
+    {
+        // 여기서 연습. Console.WriteLine / .Dump() 로 출력, Check.* 로 검증.
+        var sum = Enumerable.Range(1, 10).Sum();
+        sum.Dump("sum");
+
+        Check.Equal(55, sum);
+    }
+}
+TEMPLATE
+
+echo "만들었습니다: $file  (클래스 $cls)"
+echo "실행: ./run $lower"
+
+# VS Code 가 있으면 바로 열기
+if [[ -z "${NO_OPEN:-}" ]] && command -v code >/dev/null 2>&1; then
+  code "$file" >/dev/null 2>&1 || true
+fi

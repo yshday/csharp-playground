@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# 연습문제 실행 스크립트
+#   ./run           목록
+#   ./run ex1       ex1 실행
+#   ./run all       전부 실행
+#   ./run -w ex1    저장할 때마다 자동 재실행
+set -euo pipefail
+cd "$(dirname "$0")"
+
+if [[ "${1:-}" == "-w" || "${1:-}" == "--watch" ]]; then
+  shift
+  exec dotnet watch --non-interactive run --project . -- "$@"
+fi
+
+exec dotnet run --project . --verbosity quiet -- "$@"
